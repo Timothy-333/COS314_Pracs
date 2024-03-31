@@ -9,23 +9,68 @@ struct CampusVisit
     int campusId;
     string campusName;
 };
+void printRoute(vector<CampusVisit> route)
+{
+  for (const auto& visit : route) 
+  {
+    cout << visit.campusName;
+    if (&visit != &route.back()) 
+    {
+      cout << "->";
+    }
+  }
+}
+vector<CampusVisit> simulatedAnnealing(const vector<CampusVisit>& campuses, const double distanceMatrix[][5], double initialTemperature, double coolingRate, int maxIterations) 
+{
+  // Generate initial random route
+  vector<CampusVisit> currentRoute = generateRandomRoute(campuses);
+  double currentDistance = calculateRouteDistance(currentRoute, distanceMatrix);
+  vector<CampusVisit> bestRoute = currentRoute;
+  double bestDistance = currentDistance;
 
+  for (int i = 0; i < maxIterations; ++i) {
+    double temperature = initialTemperature * pow(coolingRate, i);
+
+    // Generate a neighbor solution (swap two random campuses)
+    vector<CampusVisit> neighbor = currentRoute;
+    int swapIndex1 = rand() % neighbor.size();
+    int swapIndex2 = (swapIndex1 + rand() % (neighbor.size() - 1) + 1) % neighbor.size();
+    swap(neighbor[swapIndex1], neighbor[swapIndex2]);
+
+    double newDistance = calculateRouteDistance(neighbor, distanceMatrix);
+    double delta = newDistance - currentDistance;
+
+    // Metropolis acceptance criteria
+    if (delta < 0 || exp(-delta / temperature) > static_cast<double>(rand()) / RAND_MAX) {
+      currentRoute = neighbor;
+      if (newDistance < bestDistance) {
+        bestRoute = currentRoute;
+        bestDistance = newDistance;
+      }
+    }
+  }
+
+  return bestRoute;
+}
 // Function to generate a random initial route
 vector<CampusVisit> generateRandomRoute(const vector<CampusVisit>& campuses)
 {
+  static mt19937 g(random_device{}());
+  
   vector<CampusVisit> route = campuses;
   route.push_back(campuses[0]);
-  random_device rd;
-  mt19937 g(rd());
   shuffle(route.begin() + 1, route.end() - 1, g);
-  return campuses;
+  cout << "Start Route: ";
+  printRoute(route);
+  cout << endl;
+  return route;
 }
 
 // Function to calculate total distance for a given route
 double calculateRouteDistance(const vector<CampusVisit>& route, const double distanceMatrix[][5]) 
 {
   double totalDistance = 0;
-  for (size_t i = 0; i < route.size() - 1; ++i) 
+  for (size_t i = 0; i < route.size() - 1; ++i)
   {
     const CampusVisit& current = route[i];
     const CampusVisit& next = route[i + 1];
@@ -36,7 +81,6 @@ double calculateRouteDistance(const vector<CampusVisit>& route, const double dis
   return totalDistance;
 }
 
-// Function implementing local search (e.g., swapping consecutive campuses)
 vector<CampusVisit> localSearch(vector<CampusVisit> route, const double distanceMatrix[][5]) 
 {
   double currentDistance = calculateRouteDistance(route, distanceMatrix);
@@ -64,7 +108,7 @@ vector<CampusVisit> localSearch(vector<CampusVisit> route, const double distance
 }
 
 // Function for perturbation (e.g., random swap of non-consecutive campuses)
-vector<CampusVisit> perturbation(vector<CampusVisit> route) 
+vector<CampusVisit> perturbation(vector<CampusVisit> route)
 {
   random_device rd;
   mt19937 g(rd());
@@ -79,7 +123,6 @@ vector<CampusVisit> perturbation(vector<CampusVisit> route)
   swap(newRoute[i], newRoute[j]);
   return newRoute;
 }
-
 int main()
 {
     double distanceMatrix[5][5] = {{0, 15, 20, 22, 30},
@@ -109,34 +152,39 @@ int main()
 
   // Generate initial random route
   vector<CampusVisit> currentRoute = generateRandomRoute(campuses);
+  vector<CampusVisit> bestRoute = currentRoute;
   double currentDistance = calculateRouteDistance(currentRoute, distanceMatrix);
+  double bestDistance = currentDistance;
   // ILS parameters (adjust as needed)
   int maxIterations = 1000;
   int perturbationFrequency = 10;
 
-  for (int i = 0; i < maxIterations; ++i) {
+  for (int i = 0; i < maxIterations; ++i) 
+  {
     // Apply local search
     currentRoute = localSearch(currentRoute, distanceMatrix);
-
+    currentDistance = calculateRouteDistance(currentRoute, distanceMatrix);
     // Perturb the solution occasionally
-    if (i % perturbationFrequency == 0) {
+    if (i % perturbationFrequency == 0)
+    {
       currentRoute = perturbation(currentRoute);
+      currentDistance = calculateRouteDistance(currentRoute, distanceMatrix);
     }
-
-    double newDistance = calculateRouteDistance(currentRoute, distanceMatrix);
-    // Update best solution if improvement found
-    if (newDistance < currentDistance) {
-      currentDistance = newDistance;
+    if (currentDistance < bestDistance)
+    {
+      bestRoute = currentRoute;
+      bestDistance = currentDistance;
+      cout << "Current Best Route: ";
+      printRoute(bestRoute);
+      cout << endl;
+      cout << "Distance: " << currentDistance << endl;
     }
   }
 
-  // Print the best route and its distance
-  cout << "Best Route (ILS): ";
-  for (const auto& visit : currentRoute) {
-    cout << visit.campusId << " ";
-  }
+  cout << "Best Route: ";
+  printRoute(bestRoute);
   cout << endl;
-  cout << "Distance (ILS): " << currentDistance << endl;
+  cout << "Distance: " << bestDistance << endl;
 
   return 0;
 }

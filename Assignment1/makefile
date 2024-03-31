@@ -25,4 +25,5 @@ run: $(TARGET)
 
 # Clean up object files and the target executable
 clean:
+	sudo hwclock -s
 	rm -f $(OBJS) $(TARGET)
