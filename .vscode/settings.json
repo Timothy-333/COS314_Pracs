@@ -44,7 +44,10 @@
     "stdexcept": "cpp",
     "streambuf": "cpp",
     "typeinfo": "cpp",
-    "chrono": "cpp"
+    "chrono": "cpp",
+    "ctime": "cpp",
+    "ratio": "cpp",
+    "map": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",

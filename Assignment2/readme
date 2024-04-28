@@ -1,0 +1,7 @@
+Step 1: run "make run" in terminal
+Step 2: Choose yes or no to run Z test
+IF NO:
+    Step 3: Enter seed value
+    Step 4: Choose yes or no to run Local Search
+    Step 5: Choose file from given options
+Step 6: View results in terminal
