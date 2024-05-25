@@ -156,7 +156,6 @@ public:
             double meanError = totalError / inputs.size();
             cout << "Epoch: " << epoch + 1 << ", Error: " << meanError << endl;
 
-            // Check if the change in mean error is less than the threshold
             if (epoch > 0 && abs(previousMeanError - meanError) < errorChangeThreshold)
             {
                 cout << "Stopping training, change in error less than threshold." << endl;

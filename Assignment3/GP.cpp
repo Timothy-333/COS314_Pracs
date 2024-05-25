@@ -193,7 +193,7 @@ void mutate(Node *node, int maxDepth)
     }
     else if (node->type == TERMINAL && maxDepth > 0)
     {
-        if (rand() % 2 == 0) // 50% chance to grow the tree
+        if (rand() % 2 == 0) 
         {
             node->type = FUNCTION;
             node->function = "+-*/"[rand() % 4];
@@ -236,7 +236,6 @@ void evolve(vector<Node *> &population, const vector<vector<double>> &data, cons
         }
         population = newPopulation;
 
-        // Calculate and print training accuracy after each generation
         Node *bestTree = population[0];
         double bestFitness = fitness(bestTree, data, outputs);
         for (Node *tree : population)
